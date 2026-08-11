@@ -7,9 +7,8 @@ UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {
-    ".csv",
-    ".xml",
-    ".txt"
+    ".csv"
+    
 }
 
 async def save_uploaded_file(file: UploadFile) -> dict:
@@ -21,7 +20,7 @@ async def save_uploaded_file(file: UploadFile) -> dict:
 
     # validate the extension
     if extension not in ALLOWED_EXTENSIONS:
-        raise HTTPException(status_code=400,detail="Only CSV , XML and Txt file are allowed"
+        raise HTTPException(status_code=400,detail="Only CSV file are allowed"
         )
 
     # create file apth
