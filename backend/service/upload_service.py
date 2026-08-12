@@ -36,4 +36,5 @@ async def save_uploaded_file(file: UploadFile) -> dict:
         "filename":file.filename,
         "file_type": extension,
         "file_path": str(file_path)
+        
     }
