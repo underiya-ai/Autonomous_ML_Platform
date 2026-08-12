@@ -1,0 +1,27 @@
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+seaborn
+ydata-profiling 
+
+
+langchain
+langgraph
+langchain-community
+langchain-groq
+langchain-google-genai
+
+fastapi
+uvicorn
+python-multipart
+
+polars
+pyarrow
+
+python-dotenv
+jupyter
+pytest
+optuna  # for Hyperparameter optimization
+

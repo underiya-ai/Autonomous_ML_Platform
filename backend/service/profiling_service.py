@@ -13,36 +13,103 @@ def generate_profile_report(file_path: str):
 
     file_path = Path(file_path)
 
+    # Check file exists
     if not file_path.exists():
         raise FileNotFoundError(
             f"Dataset not found: {file_path}"
         )
 
+    # Currently only CSV
     if file_path.suffix.lower() != ".csv":
         raise ValueError(
-            "only CSV files are supported."
+            "Only CSV files are supported."
         )
 
-    # Load CSV
+    # Load dataset
     df = pd.read_csv(file_path)
 
-    # Create YData profile
+
+    # Generate YData Profiling Report 
+    
+
     profile = ProfileReport(
         df,
         title=f"Dataset Profile - {file_path.name}",
         explorative=True
     )
 
-    # Save HTML report for client
+    # Report filename
     report_name = f"{file_path.stem}_profile.html"
+
     report_path = REPORT_DIR / report_name
 
+    # Save HTML report
     profile.to_file(report_path)
 
-    # Extract structured data from YData profile
-    profile_state = extract_profile_data(profile)
+    
+    # Extract structured dataset data
+    
 
-    # Add dataset name
-    profile_state["dataset_name"] = file_path.name
+    profile_state = extract_profile_data(
+        df,
+        file_path.name
+    )
 
-    return profile_state
+    
+    
+
+    # data profiling
+
+    print(
+        "Dataset:",
+        profile_state["dataset_name"]
+    )
+
+    print(
+        "Rows:",
+        profile_state["rows"]
+    )
+
+    print(
+        "Columns:",
+        profile_state["columns"]
+    )
+
+    print(
+        "Column Names:",
+        profile_state["column_names"]
+    )
+
+    print(
+        "Column Types:",
+        profile_state["column_types"]
+    )
+
+    print(
+        "Missing Values:",
+        profile_state["missing_values"]
+    )
+
+    print(
+        "Missing Percentage:",
+        profile_state["missing_percentage"]
+    )
+
+    print(
+        "Unique Values:",
+        profile_state["unique_values"]
+    )
+
+    print(
+        "Duplicate Rows:",
+        profile_state["duplicate_rows"]
+    )
+
+    # Return result
+
+
+    return {
+        "profile_state": profile_state,
+        "report_name": report_name,
+        "report_path": str(report_path)
+    }
