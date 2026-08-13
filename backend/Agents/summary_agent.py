@@ -1,8 +1,24 @@
-from langchain_groq import ChatGroq
-from dotenv import load_dotenv
-from service.profile_extractor import extract_profile_data
-from schema.state import DatasetProfileState
+from utils.llm import llm
+from prompts.summary_agent_prompt import SUMMARY_PROMPT
+from schema.state import MLState
 
-load_dotenv()
 
-def generate_summary_agent(state:DatasetProfileState)
+
+def summary_agent(state:MLState) -> dict:
+    """Analyze and give  all over summary of data"""
+
+    prompt = SUMMARY_PROMPT.format(
+        profile_state = state['profile_state']
+    )
+
+    response = llm.invoke(prompt)
+
+    summary_state = response.content
+
+    return {
+        "summary_state":summary_state
+    }
+
+
+
+

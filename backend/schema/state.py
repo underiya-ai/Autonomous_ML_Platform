@@ -1,9 +1,9 @@
-from typing import TypedDict,Any
+from typing import TypedDict
+
 
 class ProfilingReport(TypedDict):
-    ReportName:str
-    ReportPath:str
-
+    ReportName: str
+    ReportPath: str
 
 
 class DatasetProfileState(TypedDict):
@@ -41,9 +41,12 @@ class DatasetProfileState(TypedDict):
 
     alerts: list
 
+
 class MLState(TypedDict):
 
     file_path: str
+
+    profiling_report: ProfilingReport
 
     profile_state: DatasetProfileState
 
