@@ -26,90 +26,32 @@ def generate_profile_report(file_path: str):
         )
 
     # Load dataset
+   # Load dataset
     df = pd.read_csv(file_path)
 
-
-    # Generate YData Profiling Report 
-    
-
+# Generate YData profiling report
     profile = ProfileReport(
-        df,
-        title=f"Dataset Profile - {file_path.name}",
-        explorative=True
-    )
+    df,
+    title=f"Dataset Profile - {file_path.name}",
+    explorative=True
+)
 
-    # Report filename
+# Report filename
     report_name = f"{file_path.stem}_profile.html"
 
     report_path = REPORT_DIR / report_name
 
-    # Save HTML report
+# Save HTML report
     profile.to_file(report_path)
 
-    
-    # Extract structured dataset data
-    
-
+# Extract structured dataset information
     profile_state = extract_profile_data(
-        df,
-        file_path.name
-    )
-
-    
-    
-
-    # data profiling
-
-    print(
-        "Dataset:",
-        profile_state["dataset_name"]
-    )
-
-    print(
-        "Rows:",
-        profile_state["rows"]
-    )
-
-    print(
-        "Columns:",
-        profile_state["columns"]
-    )
-
-    print(
-        "Column Names:",
-        profile_state["column_names"]
-    )
-
-    print(
-        "Column Types:",
-        profile_state["column_types"]
-    )
-
-    print(
-        "Missing Values:",
-        profile_state["missing_values"]
-    )
-
-    print(
-        "Missing Percentage:",
-        profile_state["missing_percentage"]
-    )
-
-    print(
-        "Unique Values:",
-        profile_state["unique_values"]
-    )
-
-    print(
-        "Duplicate Rows:",
-        profile_state["duplicate_rows"]
-    )
-
-    # Return result
-
+    df,
+    file_path.name
+)
 
     return {
-        "profile_state": profile_state,
-        "report_name": report_name,
-        "report_path": str(report_path)
-    }
+    "profile_state": profile_state,
+    "report_name": report_name,
+    "report_path": str(report_path)
+}

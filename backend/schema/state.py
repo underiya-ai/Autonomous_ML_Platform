@@ -1,30 +1,36 @@
-from typing import TypedDict, Any
-
+from typing import TypedDict,Any
 
 class DatasetProfileState(TypedDict):
+
     dataset_name: str
 
     rows: int
     columns: int
 
-    column_names: list[str]
-    column_types: dict[str, str]
+    column_names: list
 
-    missing_values: dict[str, int]
-    missing_percentage: dict[str, float]
+    column_types: dict
 
-    unique_values: dict[str, int]
+    numerical_columns: list
+
+    categorical_columns: list
+
+    missing_values: dict
+
+    missing_percentage: dict
+
+    unique_values: dict
 
     duplicate_rows: int
 
-    column_details: dict[str, Any]
+    column_details: dict
 
-    statistics: dict[str, Any]
+    statistics: dict
 
-    skewness: dict[str, float]
+    skewness: dict
 
-    outliers: dict[str, Any]
+    outliers: dict
 
-    correlations: list[dict[str, Any]]
+    correlations: list
 
-    alerts: list[str]
+    alerts: list
