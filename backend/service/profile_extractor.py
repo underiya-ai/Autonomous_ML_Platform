@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
 from schema.state import DatasetProfileState
 
@@ -22,10 +23,10 @@ def safe_number(value):
     except Exception:
         pass
 
-    if isinstance(value, (np.integer,)):
+    if isinstance(value, np.integer):
         return int(value)
 
-    if isinstance(value, (np.floating,)):
+    if isinstance(value, np.floating):
         if np.isnan(value):
             return None
         return float(value)
@@ -34,31 +35,57 @@ def safe_number(value):
 
 
 def extract_profile_data(
-    df: pd.DataFrame,
-    dataset_name: str
+    file_path: str
 ) -> DatasetProfileState:
 
-    # DATASET INFORMATION
+    
+    # 1. FILE VALIDATION
 
+
+    file_path = Path(file_path)
+
+    if not file_path.exists():
+        raise FileNotFoundError(
+            f"Dataset not found: {file_path}"
+        )
+
+    if file_path.suffix.lower() != ".csv":
+        raise ValueError(
+            "Only CSV files are supported."
+        )
+
+    
+    # 2. LOAD DATASET
+    
+
+    df = pd.read_csv(file_path)
+
+    dataset_name = file_path.name
+
+    
+    # 3. Dataset Information
 
     rows = len(df)
+
     columns = len(df.columns)
 
     column_names = df.columns.tolist()
 
-    duplicate_rows = int(df.duplicated().sum())
+    duplicate_rows = int(
+        df.duplicated().sum()
+    )
 
-    
-    # COLUMN TYPES
-    
+    # 4. COLUMN TYPES
+
 
     column_types = {
         column: str(df[column].dtype)
         for column in df.columns
     }
 
-    # NUMERICAL / CATEGORICAL FEATURES
     
+    # 5. NUMERICAL / CATEGORICAL FEATURES
+
 
     numerical_columns = df.select_dtypes(
         include=np.number
@@ -69,7 +96,8 @@ def extract_profile_data(
     ).columns.tolist()
 
     
-    # INITIAL STATe
+    # 6. INITIAL STATE
+    
 
     state = {
         "dataset_name": dataset_name,
@@ -106,15 +134,18 @@ def extract_profile_data(
         "alerts": []
     }
 
-
-    # COLUMN INFORMATION
+    
+    # 7. COLUMN INFORMATION
     
 
     for column in df.columns:
 
         series = df[column]
 
-        missing_count = int(series.isna().sum())
+        # Missing values
+        missing_count = int(
+            series.isna().sum()
+        )
 
         missing_percentage = (
             missing_count / rows * 100
@@ -122,32 +153,41 @@ def extract_profile_data(
             else 0
         )
 
+        # Unique values
         unique_count = int(
             series.nunique(dropna=True)
         )
 
+        # Non-null values
         non_null_count = int(
             series.notna().sum()
         )
 
-        dtype = str(series.dtype)
+        # Data type
+        dtype = str(
+            series.dtype
+        )
 
-        
-        # BASIC INFORMATION
     
+        # BASIC INFORMATION
+        
 
-        state["missing_values"][column] = missing_count
+        state["missing_values"][column] = (
+            missing_count
+        )
 
         state["missing_percentage"][column] = round(
             missing_percentage,
             2
         )
 
-        state["unique_values"][column] = unique_count
+        state["unique_values"][column] = (
+            unique_count
+        )
 
         
         # COLUMN DETAILS
-    
+
 
         state["column_details"][column] = {
 
@@ -165,9 +205,8 @@ def extract_profile_data(
             "non_null_values": non_null_count
         }
 
-    
-        # NUMERICAL FEATURES
         
+        # NUMERICAL Columns
 
         if column in numerical_columns:
 
@@ -175,6 +214,10 @@ def extract_profile_data(
                 series,
                 errors="coerce"
             )
+
+            
+            # STATISTICS
+            
 
             state["statistics"][column] = {
 
@@ -208,7 +251,7 @@ def extract_profile_data(
             }
 
             
-            # SKEWNESS
+            # SKEWNEss
             
 
             skew = numeric_series.skew()
@@ -222,7 +265,6 @@ def extract_profile_data(
 
             
             # OUTLIERS - IQR METHOD
-            
 
             q1 = numeric_series.quantile(0.25)
 
@@ -232,9 +274,13 @@ def extract_profile_data(
 
             if pd.notna(iqr) and iqr != 0:
 
-                lower_bound = q1 - 1.5 * iqr
+                lower_bound = (
+                    q1 - 1.5 * iqr
+                )
 
-                upper_bound = q3 + 1.5 * iqr
+                upper_bound = (
+                    q3 + 1.5 * iqr
+                )
 
                 outlier_mask = (
                     (numeric_series < lower_bound)
@@ -269,15 +315,15 @@ def extract_profile_data(
                         upper_bound
                     )
                 }
-
-        
-        # CATEGORICAL FEATURES
+        # CATEGORICAL FEATUREs
 
         if column in categorical_columns:
 
             value_counts = (
                 series
-                .value_counts(dropna=False)
+                .value_counts(
+                    dropna=False
+                )
                 .head(10)
                 .to_dict()
             )
@@ -289,21 +335,24 @@ def extract_profile_data(
                 for k, v in value_counts.items()
             }
 
-    
-    # CORRELATION
-    
+    # 8. CORRELATION
+
 
     if len(numerical_columns) >= 2:
 
         correlation_matrix = df[
             numerical_columns
-        ].corr(method="pearson")
+        ].corr(
+            method="pearson"
+        )
 
         for i, column1 in enumerate(
             numerical_columns
         ):
 
-            for column2 in numerical_columns[i + 1:]:
+            for column2 in numerical_columns[
+                i + 1:
+            ]:
 
                 value = correlation_matrix.loc[
                     column1,
@@ -326,10 +375,6 @@ def extract_profile_data(
                         )
                     })
 
-    
-    # ALERTS
-    
-
     # Missing value alerts
 
     for column in df.columns:
@@ -341,20 +386,23 @@ def extract_profile_data(
         if percentage > 50:
 
             state["alerts"].append(
-                f"{column} has very high missing values "
-                f"({percentage}%)"
+                f"{column} has very high "
+                f"missing values ({percentage}%)"
             )
 
         elif percentage > 10:
 
             state["alerts"].append(
-                f"{column} has significant missing values "
-                f"({percentage}%)"
+                f"{column} has significant "
+                f"missing values ({percentage}%)"
             )
 
     # Skewness alerts
+    
 
-    for column, skew in state["skewness"].items():
+    for column, skew in state[
+        "skewness"
+    ].items():
 
         if abs(skew) > 20:
 
@@ -363,6 +411,7 @@ def extract_profile_data(
                 f"(skewness={skew})"
             )
 
+    
     # Duplicate alert
 
     if duplicate_rows > 0:
@@ -372,9 +421,10 @@ def extract_profile_data(
         )
 
         state["alerts"].append(
-            f"Dataset contains {duplicate_rows} "
-            f"duplicate rows "
+            f"Dataset contains "
+            f"{duplicate_rows} duplicate rows "
             f"({duplicate_percentage:.2f}%)"
         )
+
 
     return state

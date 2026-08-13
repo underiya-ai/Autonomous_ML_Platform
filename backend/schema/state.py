@@ -1,5 +1,11 @@
 from typing import TypedDict,Any
 
+class ProfilingReport(TypedDict):
+    ReportName:str
+    ReportPath:str
+
+
+
 class DatasetProfileState(TypedDict):
 
     dataset_name: str
@@ -34,3 +40,11 @@ class DatasetProfileState(TypedDict):
     correlations: list
 
     alerts: list
+
+class MLState(TypedDict):
+
+    file_path: str
+
+    profile_state: DatasetProfileState
+
+    summary_state: dict
