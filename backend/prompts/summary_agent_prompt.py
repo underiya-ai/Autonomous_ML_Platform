@@ -40,7 +40,7 @@ Do not claim correlation means causation.
 
 Return JSON:
 
-{
+{{
     "dataset_summary": "...",
     "data_quality_summary": "...",
     "numerical_features_summary": "...",
@@ -51,5 +51,5 @@ Return JSON:
     "correlation_insights": [],
     "important_findings": [],
     "cleaning_recommendations": []
-}
+}}
 """

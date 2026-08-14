@@ -41,7 +41,29 @@ class DatasetProfileState(TypedDict):
 
     alerts: list
 
+class SummaryState(TypedDict):
 
+    dataset_summary: str
+
+    data_quality_summary: str
+
+    numerical_features_summary: str
+
+    categorical_features_summary: str
+
+    missing_value_insights: list
+
+    outlier_insights: list
+
+    distribution_insights: list
+
+    correlation_insights: list
+
+    important_findings: list
+
+    cleaning_recommendations: list
+
+    
 class MLState(TypedDict):
 
     file_path: str
@@ -50,4 +72,6 @@ class MLState(TypedDict):
 
     profile_state: DatasetProfileState
 
-    summary_state: dict
+    summary_state: SummaryState
+
+

@@ -1,3 +1,4 @@
+import json
 from utils.llm import llm
 from prompts.summary_agent_prompt import SUMMARY_PROMPT
 from schema.state import MLState
@@ -13,7 +14,7 @@ def summary_agent(state:MLState) -> dict:
 
     response = llm.invoke(prompt)
 
-    summary_state = response.content
+    summary_state = json.loads(response.content)
 
     return {
         "summary_state":summary_state
