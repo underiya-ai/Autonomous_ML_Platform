@@ -1,5 +1,6 @@
 from typing import TypedDict
-
+from pydantic import BaseModel
+from typing import List
 
 class ProfilingReport(TypedDict):
     ReportName: str
@@ -41,7 +42,9 @@ class DatasetProfileState(TypedDict):
 
     alerts: list
 
-class SummaryState(TypedDict):
+
+
+class SummaryState(BaseModel):
 
     dataset_summary: str
 
@@ -51,19 +54,18 @@ class SummaryState(TypedDict):
 
     categorical_features_summary: str
 
-    missing_value_insights: list
+    missing_value_insights: List[str]
 
-    outlier_insights: list
+    outlier_insights: List[str]
 
-    distribution_insights: list
+    distribution_insights: List[str]
 
-    correlation_insights: list
+    correlation_insights: List[str]
 
-    important_findings: list
+    important_findings: List[str]
 
-    cleaning_recommendations: list
+    cleaning_recommendations: List[str]
 
-    
 class MLState(TypedDict):
 
     file_path: str

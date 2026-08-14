@@ -4,60 +4,45 @@ from pathlib import Path
 
 from service.profiling_service import generate_profile_report
 
-
 router = APIRouter(
     prefix="/reports",
     tags=["Reports"]
 )
 
 
-# Generate YData Profiling Report
-@router.post("/generate")
-async def generate_report(file_path: str):
-
-    try:
-
-        result = generate_profile_report(file_path)
-
-        return {
-            "message": "Profile report generated successfully",
-            "report_name": result["report_name"],
-            "report_path": result["report_path"],
-            "report_url": f"/reports/{result['report_name']}"
-        }
-
-    except FileNotFoundError as e:
-
-        raise HTTPException(
-            status_code=404,
-            detail=str(e)
-        )
-
-    except Exception as e:
-
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
-
-
-# View YData Profiling Report
 @router.get("/{report_name}")
 async def view_report(report_name: str):
 
-    report_path = (
-        Path("uploads/reports")
-        / report_name
-    )
+    report_path = Path("uploads/reports") / report_name
 
-    if not report_path.exists():
+    # Agar report already exist karti hai
+    if report_path.exists():
+
+        return FileResponse(
+            path=str(report_path),
+            media_type="text/html"
+        )
+
+    # Report exist nahi karti
+    # Original dataset ka pth nikalenge
+    file_name = report_name.replace("_profile.html", ".csv")
+
+    file_path = Path("uploads") / file_name
+
+    if not file_path.exists():
 
         raise HTTPException(
             status_code=404,
-            detail="Report not found"
+            detail="Dataset not found"
         )
 
+    # Generate report
+    result = generate_profile_report(
+        str(file_path)
+    )
+
+    # Generated report return karo
     return FileResponse(
-        path=str(report_path),
+        path=result["report_path"],
         media_type="text/html"
     )
