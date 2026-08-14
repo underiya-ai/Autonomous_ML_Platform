@@ -1,6 +1,8 @@
-from typing import TypedDict
-from pydantic import BaseModel
-from typing import List
+from typing import TypedDict,Literal,Optional,List
+from pydantic import BaseModel,Field
+
+
+
 
 class ProfilingReport(TypedDict):
     ReportName: str
@@ -8,38 +10,22 @@ class ProfilingReport(TypedDict):
 
 
 class DatasetProfileState(TypedDict):
-
     dataset_name: str
-
     rows: int
     columns: int
-
     column_names: list
-
     column_types: dict
-
     numerical_columns: list
-
     categorical_columns: list
-
     missing_values: dict
-
     missing_percentage: dict
-
     unique_values: dict
-
     duplicate_rows: int
-
     column_details: dict
-
     statistics: dict
-
     skewness: dict
-
     outliers: dict
-
     correlations: list
-
     alerts: list
 
 
@@ -65,15 +51,52 @@ class SummaryState(BaseModel):
     important_findings: List[str]
 
     cleaning_recommendations: List[str]
+    
 
 class MLState(TypedDict):
 
     file_path: str
 
-    profiling_report: ProfilingReport
+    profile_state: dict
 
-    profile_state: DatasetProfileState
+    summary_state: dict
 
-    summary_state: SummaryState
+    cleaning_plan: dict
+
+    cleaning_state: dict
 
 
+
+
+class CleaningAction(BaseModel):
+
+    column: Optional[str] = None
+
+    action: Literal[
+        "drop_column",
+        "drop_duplicates",
+        "fill_missing",
+        "drop_missing_rows",
+        "convert_dtype",
+        "standardize_text",
+        "remove_invalid_values",
+        "handle_outliers",
+        "transform_skewness",
+        "remove_constant_column",
+        "keep"
+    ]
+
+    reason: str
+
+    method: Optional[str] = None
+
+    value: Optional[str] = None
+
+
+class CleaningPlan(BaseModel):
+
+    actions: List[CleaningAction]
+
+    important_warnings: List[str]
+
+    summary: str
