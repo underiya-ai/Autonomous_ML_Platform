@@ -4,7 +4,7 @@ from prompts.cleaning_prompt import CLEANING_PROMPT
 
 from schema.state import MLState
 
-from schema.state import CleaningPlan
+from schema.state import CleaningPlanState
 
 
 def cleaning_agent(state: MLState) -> dict:
@@ -22,7 +22,7 @@ def cleaning_agent(state: MLState) -> dict:
         summary_state=state["summary_state"]
     )
 
-    structured_llm = llm.with_structured_output(CleaningPlan)
+    structured_llm = llm.with_structured_output(CleaningPlanState)
 
     response = structured_llm.invoke(prompt)
 

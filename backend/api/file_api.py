@@ -22,19 +22,25 @@ async def upload_file(file: UploadFile = File(...)):
     # Get saved file path
     file_path = result["file_path"]
 
-    # Initial state
+    # Initial state --> graph ko btaana padega ki initial state kya hai 
     state = {
         "file_path": file_path,
         "profile_state": {},
-        "summary_state": {}
+        "summary_state": {},
+        "cleaning_plan": {},
+        "cleaning_state": {}
     }
 
     # Run ML pipeline
     final_state = await ml_graph.ainvoke(state)
 
     return {
-        "message": "File uploaded and processed successfully",
-        "file": result,
-        "profile": final_state.get("profile_state", {}),
-        "summary": final_state.get("summary_state", {})
+        "message":"File Loaded successfully",
+        "file_path": final_state.get("file_path"),
+        "cleaned_file_path": final_state.get("cleaned_file_path"),
+        "profile":final_state.get("profile_state"),
+        "summary":final_state.get("summary_state"),
+        "cleaning_plan": final_state.get("cleaning_plan"),
+        "clean_state" : final_state.get("cleaning_state")
+
     }

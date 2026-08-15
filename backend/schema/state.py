@@ -1,4 +1,4 @@
-from typing import TypedDict,Literal,Optional,List
+from typing import TypedDict,Literal,Optional,List,NotRequired
 from pydantic import BaseModel,Field
 
 
@@ -56,19 +56,16 @@ class SummaryState(BaseModel):
 class MLState(TypedDict):
 
     file_path: str
-
-    profile_state: dict
-
+    cleaned_file_path: NotRequired[str]
+    profile_state: DatasetProfileState
     summary_state: dict
-
     cleaning_plan: dict
-
     cleaning_state: dict
 
 
 
 
-class CleaningAction(BaseModel):
+class CleaningActionState(BaseModel):
 
     column: Optional[str] = None
 
@@ -93,9 +90,9 @@ class CleaningAction(BaseModel):
     value: Optional[str] = None
 
 
-class CleaningPlan(BaseModel):
+class CleaningPlanState(BaseModel):
 
-    actions: List[CleaningAction]
+    actions: List[CleaningActionState]
 
     important_warnings: List[str]
 

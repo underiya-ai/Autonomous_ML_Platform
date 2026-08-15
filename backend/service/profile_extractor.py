@@ -101,36 +101,21 @@ def extract_profile_data(
 
     state = {
         "dataset_name": dataset_name,
-
         "rows": rows,
         "columns": columns,
-
         "column_names": column_names,
-
         "column_types": column_types,
-
         "numerical_columns": numerical_columns,
-
         "categorical_columns": categorical_columns,
-
         "missing_values": {},
-
         "missing_percentage": {},
-
         "unique_values": {},
-
         "duplicate_rows": duplicate_rows,
-
         "column_details": {},
-
         "statistics": {},
-
         "skewness": {},
-
         "outliers": {},
-
         "correlations": [],
-
         "alerts": []
     }
 
