@@ -1,4 +1,4 @@
-from utils.llm import llm
+from utils.llm import Gemini_llm
 from prompts.summary_agent_prompt import SUMMARY_PROMPT
 from schema.state import MLState
 from schema.state import SummaryState
@@ -11,7 +11,7 @@ def summary_agent(state: MLState) -> dict:
         profile_state=state["profile_state"]
     )
 
-    structured_llm = llm.with_structured_output(
+    structured_llm = Gemini_llm.with_structured_output(
         SummaryState
     )
 
