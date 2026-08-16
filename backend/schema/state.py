@@ -58,9 +58,11 @@ class MLState(TypedDict):
     file_path: str
     cleaned_file_path: NotRequired[str]
     profile_state: DatasetProfileState
+    column_identifier_state: dict
     summary_state: dict
     cleaning_plan: dict
     cleaning_state: dict
+    
 
 
 
@@ -84,16 +86,37 @@ class CleaningActionState(BaseModel):
     ]
 
     reason: str
-
     method: Optional[str] = None
-
     value: Optional[str] = None
 
 
 class CleaningPlanState(BaseModel):
 
     actions: List[CleaningActionState]
-
     important_warnings: List[str]
+    summary: str
 
+
+class ColumnRoleState(BaseModel):
+
+    column: str
+    role: Literal[
+        "identifier",
+        "entity_identifier",
+        "numerical_feature",
+        "categorical_feature",
+        "datetime",
+        "text",
+        "boolean",
+        "constant"
+    ]
+
+    confidence: Literal["high","medium","low"]
+    reason: str
+
+
+class ColumnIdentifierState(BaseModel):
+
+    columns: List[ColumnRoleState]
+    important_warnings: List[str]
     summary: str
