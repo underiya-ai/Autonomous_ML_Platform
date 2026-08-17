@@ -59,6 +59,7 @@ class MLState(TypedDict):
     cleaned_file_path: NotRequired[str]
     profile_state: DatasetProfileState
     column_identifier_state: dict
+    selected_columns_to_remove: NotRequired[List[str]]
     summary_state: dict
     cleaning_plan: dict
     cleaning_state: dict
