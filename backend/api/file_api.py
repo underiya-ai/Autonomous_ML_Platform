@@ -27,6 +27,7 @@ async def upload_file(file: UploadFile = File(...)):
         "file_path": file_path,
         "profile_state": {},
         "summary_state": {},
+        "column_identifier_state": {},
         "cleaning_plan": {},
         "cleaning_state": {}
     }
@@ -40,6 +41,7 @@ async def upload_file(file: UploadFile = File(...)):
         "cleaned_file_path": final_state.get("cleaned_file_path"),
         "profile":final_state.get("profile_state"),
         "summary":final_state.get("summary_state"),
+        "column_identifier": final_state.get("column_identifier_state"),
         "cleaning_plan": final_state.get("cleaning_plan"),
         "clean_state" : final_state.get("cleaning_state")
 

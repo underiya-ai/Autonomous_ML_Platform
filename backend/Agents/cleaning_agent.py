@@ -10,7 +10,9 @@ def cleaning_agent(state: MLState) -> dict:
     prompt = CLEANING_PROMPT.format(
         file_path=state["file_path"],
         profile_state=state["profile_state"],
-        summary_state=state["summary_state"]
+        summary_state=state["summary_state"],
+        column_identifier_state=["column_identifier_state"]
+
     )
 
     response = Groq_llm.invoke(prompt)

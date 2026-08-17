@@ -8,12 +8,18 @@ CLEANED_DIR = Path("uploads/cleaned")
 CLEANED_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
+def clean_dataset(
+    file_path: str,
+    cleaning_plan: dict,
+    column_identifier: dict
+) -> dict:
 
     file_path = Path(file_path)
 
     if not file_path.exists():
-        raise FileNotFoundError(f"Dataset not found: {file_path}" )
+        raise FileNotFoundError(
+            f"Dataset not found: {file_path}"
+        )
 
     df = pd.read_csv(file_path)
 
@@ -21,11 +27,15 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
     original_columns = len(df.columns)
 
     changes = []
+    warnings = []
 
-    actions = cleaning_plan.get(
-        "actions",
-        []
-    )
+    # Column roles from Column Identifier Agent
+    column_roles = {
+        item["column"]: item["role"]
+        for item in column_identifier.get("columns", [])
+    }
+
+    actions = cleaning_plan.get("actions", [])
 
     for action in actions:
 
@@ -33,25 +43,39 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
         action_type = action.get("action")
         method = action.get("method")
 
-        # drop duplicate
+        # KEEP
+        if action_type == "keep":
+            continue
 
+        # Safety: don't modify identifiers/entity identifiers
+        if column in column_roles:
+
+            role = column_roles[column]
+
+            if role in ["identifier", "entity_identifier"]:
+
+                if action_type not in ["drop_column"]:
+
+                    warnings.append(
+                        f"Skipped '{column}' because it is "
+                        f"identified as {role}."
+                    )
+
+                    continue
+
+        # DROP DUPLICATES
         if action_type == "drop_duplicates":
 
             before = len(df)
 
             df = df.drop_duplicates()
 
-            removed = before - len(df)
-
             changes.append({
                 "action": "drop_duplicates",
-                "rows_removed": removed
+                "rows_removed": before - len(df)
             })
 
-      
-        # drop column 
-       
-
+        # DROP COLUMN
         elif action_type == "drop_column":
 
             if column in df.columns:
@@ -63,36 +87,26 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
                     "action": "drop_column"
                 })
 
-        
-        # constant column
-    
-
+        # REMOVE CONSTANT COLUMN
         elif action_type == "remove_constant_column":
 
             if column in df.columns:
 
-                if df[column].nunique(
-                    dropna=False
-                ) <= 1:
+                if df[column].nunique(dropna=False) <= 1:
 
-                    df = df.drop(
-                        columns=[column]
-                    )
+                    df = df.drop(columns=[column])
 
                     changes.append({
                         "column": column,
                         "action": "remove_constant_column"
                     })
 
-        
-   # standardize text
-        
-
+        # STANDARDIZE TEXT
         elif action_type == "standardize_text":
 
             if column in df.columns:
 
-                if (df[column].dtype == "object"):
+                if df[column].dtype == "object":
 
                     df[column] = (
                         df[column]
@@ -105,10 +119,7 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
                         "action": "standardize_text"
                     })
 
-        
         # FILL MISSING
-        
-
         elif action_type == "fill_missing":
 
             if column not in df.columns:
@@ -118,17 +129,13 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
 
                 value = df[column].median()
 
-                df[column] = df[column].fillna(
-                    value
-                )
+                df[column] = df[column].fillna(value)
 
             elif method == "mean":
 
                 value = df[column].mean()
 
-                df[column] = df[column].fillna(
-                    value
-                )
+                df[column] = df[column].fillna(value)
 
             elif method == "mode":
 
@@ -144,9 +151,7 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
 
                 value = action.get("value")
 
-                df[column] = df[column].fillna(
-                    value
-                )
+                df[column] = df[column].fillna(value)
 
             changes.append({
                 "column": column,
@@ -154,10 +159,7 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
                 "method": method
             })
 
-        
         # DROP MISSING ROWS
-        
-
         elif action_type == "drop_missing_rows":
 
             if column in df.columns:
@@ -168,18 +170,13 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
                     subset=[column]
                 )
 
-                removed = before - len(df)
-
                 changes.append({
                     "column": column,
                     "action": "drop_missing_rows",
-                    "rows_removed": removed
+                    "rows_removed": before - len(df)
                 })
 
-        
-        # CONVERT NUMERIC
-        
-
+        # CONVERT DTYPE
         elif action_type == "convert_dtype":
 
             if column not in df.columns:
@@ -205,10 +202,25 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
                 "method": method
             })
 
-        
-        # OUTLIERS - IQR CLIPPING
-        
+        # REMOVE INVALID VALUES
+        elif action_type == "remove_invalid_values":
 
+            if column not in df.columns:
+                continue
+
+            before = len(df)
+
+            df = df.dropna(
+                subset=[column]
+            )
+
+            changes.append({
+                "column": column,
+                "action": "remove_invalid_values",
+                "rows_removed": before - len(df)
+            })
+
+        # HANDLE OUTLIERS
         elif action_type == "handle_outliers":
 
             if column not in df.columns:
@@ -240,10 +252,7 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
                     "method": "iqr_clip"
                 })
 
-        
-        # SKEWNESS TRANSFORMATION
-        
-
+        # TRANSFORM SKEWNESS
         elif action_type == "transform_skewness":
 
             if column not in df.columns:
@@ -256,53 +265,48 @@ def clean_dataset(file_path: str,cleaning_plan: dict) -> dict:
                     errors="coerce"
                 )
 
-                if (numeric >= 0).all():
+                valid_values = numeric.dropna()
 
-                    df[column] = np.log1p(
-                        numeric
-                    )
+                if not valid_values.empty:
 
-                    changes.append({
-                        "column": column,
-                        "action": "transform_skewness",
-                        "method": "log1p"
-                    })
+                    if (valid_values >= 0).all():
 
-    
-    # SAVE CLEANED DATASET
+                        df[column] = np.log1p(
+                            numeric
+                        )
 
+                        changes.append({
+                            "column": column,
+                            "action": "transform_skewness",
+                            "method": "log1p"
+                        })
 
-    cleaned_name = (f"{file_path.stem}_cleaned.csv")
+                    else:
 
-    cleaned_path = (CLEANED_DIR / cleaned_name)
+                        warnings.append(
+                            f"Skipped log1p for '{column}' "
+                            f"because negative values exist."
+                        )
 
-    df.to_csv(cleaned_path,index=False)
+    # SAVE
+    cleaned_name = f"{file_path.stem}_cleaned.csv"
 
-    
+    cleaned_path = CLEANED_DIR / cleaned_name
+
+    df.to_csv(
+        cleaned_path,
+        index=False
+    )
+
     # FINAL REPORT
-    
-
     return {
-
         "original_rows": original_rows,
-
         "cleaned_rows": len(df),
-
-        "rows_removed": (
-            original_rows - len(df)
-        ),
-
+        "rows_removed": original_rows - len(df),
         "original_columns": original_columns,
-
         "cleaned_columns": len(df.columns),
-
-        "columns_removed": (
-            original_columns - len(df.columns)
-        ),
-
-        "cleaned_file_path": str(
-            cleaned_path
-        ),
-
-        "changes": changes
+        "columns_removed": original_columns - len(df.columns),
+        "cleaned_file_path": str(cleaned_path),
+        "changes": changes,
+        "warnings": warnings
     }
