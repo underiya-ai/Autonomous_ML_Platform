@@ -11,7 +11,8 @@ def cleaning_agent(state: MLState) -> dict:
         file_path=state["file_path"],
         profile_state=state["profile_state"],
         summary_state=state["summary_state"],
-        column_identifier_state=["column_identifier_state"]
+        column_identifier_state=state["column_identifier_state"],
+        selected_columns_to_remove = state["selected_columns_to_remove"]
 
     )
 

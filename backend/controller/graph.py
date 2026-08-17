@@ -11,12 +11,13 @@ from langgraph.checkpoint.memory import MemorySaver
 checkpointer = MemorySaver()
 
 def human_column_selection_node(state:MLState):
-    column_roles = state['column_identifier_state']
+    column_identifier = state.get("column_identifier_state", {})
+    columns = column_identifier.get("columns", [])
 
     user_input = interrupt({
         "type": "column_selection",
         "message":"Select columns you want to remove",
-        "columns": column_roles["columns"]
+        "columns": columns
     })
 
     return {
