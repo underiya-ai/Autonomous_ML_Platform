@@ -1,7 +1,7 @@
 from schema.state import MLState
 import json
 from utils.llm import Gemini_llm
-from prompts.categorical_planning import CATEGORICAL_PLAN_PROMPT
+from prompts.categorical_planning_prompt import CATEGORICAL_PLAN_PROMPT
 
 
 def categorical_handle_plan_node(state:MLState) ->dict:

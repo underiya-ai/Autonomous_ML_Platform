@@ -64,6 +64,8 @@ class MLState(TypedDict):
     cleaning_plan: dict
     cleaning_state: dict
     categorical_encoding_plan: dict
+    categorical_handling_state: dict
+    encoded_file_path: str
     
 
 
