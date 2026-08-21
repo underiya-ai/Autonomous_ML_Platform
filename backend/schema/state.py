@@ -63,6 +63,7 @@ class MLState(TypedDict):
     summary_state: dict
     cleaning_plan: dict
     cleaning_state: dict
+    categorical_encoding_plan: dict
     
 
 

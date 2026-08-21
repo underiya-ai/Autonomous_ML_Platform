@@ -5,7 +5,7 @@ from prompts.cleaning_prompt import CLEANING_PROMPT
 from schema.state import MLState
 
 
-def cleaning_agent(state: MLState) -> dict:
+def cleaning_plan_agent(state: MLState) -> dict:
 
     prompt = CLEANING_PROMPT.format(
         file_path=state["file_path"],

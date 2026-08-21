@@ -3,9 +3,10 @@ from schema.state import MLState
 from langgraph.types import interrupt
 from Agents.profile_extractor_agent import profile_extractor_node
 from Agents.summary_agent import summary_agent
-from Agents.cleaning_agent import cleaning_agent
+from Agents.cleaning_agent import cleaning_plan_agent
 from Agents.cleaning_executor_node import cleaning_executor
 from Agents.column_identifier_agent import column_identifier_node
+from Agents.Categorical_plan_agent import categorical_handle_plan_node
 from langgraph.checkpoint.memory import MemorySaver
 
 checkpointer = MemorySaver()
@@ -34,7 +35,7 @@ def build_ml_graph():
     graph.add_node("human_column_selection",human_column_selection_node
     )
     graph.add_node("summary_agent", summary_agent)
-    graph.add_node("cleaning_agent",cleaning_agent)
+    graph.add_node("cleaning_agent",cleaning_plan_agent)
     graph.add_node("cleaning_executor",cleaning_executor)
 
     # graph.add_edge(START, "profile_report")
