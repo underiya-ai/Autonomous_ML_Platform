@@ -66,6 +66,7 @@ class MLState(TypedDict):
     categorical_encoding_plan: dict
     categorical_handling_state: dict
     encoded_file_path: str
+    scaling_plan: dict
     
 
 
