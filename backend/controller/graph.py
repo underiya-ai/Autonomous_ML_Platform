@@ -8,6 +8,7 @@ from Agents.cleaning_executor_node import cleaning_executor
 from Agents.column_identifier_agent import column_identifier_node
 from Agents.Categorical_plan_agent import categorical_handle_plan_node
 from Agents.categorical_handle_agent import categorical_handling_node
+from Agents.scale_plan_agent import scaled_plan_node
 from langgraph.checkpoint.memory import MemorySaver
 
 checkpointer = MemorySaver()
@@ -39,6 +40,7 @@ def build_ml_graph():
     graph.add_node("cleaning_executor",cleaning_executor)
     graph.add_node("categorical_plan",categorical_handle_plan_node)
     graph.add_node("categorical_handling",categorical_handling_node)
+    graph.add_node("scaling_plan",scaled_plan_node)
 
     # graph.add_edge(START, "profile_report")
     # graph.add_edge("profile_report", END)
@@ -50,6 +52,7 @@ def build_ml_graph():
     graph.add_edge("cleaning_agent","cleaning_executor")
     graph.add_edge("cleaning_executor","categorical_plan")
     graph.add_edge("categorical_plan","categorical_handling")
-    graph.add_edge("categorical_handling",END)
+    graph.add_edge("categorical_handling","scaling_plan")
+    graph.add_edge("scaling_plan",END)
 
     return graph.compile(checkpointer=checkpointer)
